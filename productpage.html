@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+<style>
+    .mainstyle{
+        display: flex;
+        flex-direction: row;
+        width: 85vw;
+        align-items: flex-start;
+        padding: 10px;
+    }
+    .product-text-area-style{
+        flex: 1 0 70%; 
+        display: flex; 
+        flex-direction: column;
+        border: 1px solid white;
+        backdrop-filter: blur(5px);
+        padding-left: 10px;
+    }
+    .product-title-style{
+        color:gray;
+        font-weight: bold;
+        font-family: Arial, Helvetica, sans-serif
+    }
+    .product-price-style{
+        margin: 0px;
+        padding: 0px;
+        border: 1px solid white;
+        font-family: monospace;
+        width: fit-content;
+        color:white;
+    }
+    .product-description-style{
+        color:white;
+        font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    }
+    /* remove spinner buttons from number input*/
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+    }
+    input[type=number] {
+    -moz-appearance: textfield;
+    }
+    .quantity-block{
+        border: none;
+        background-color: white;
+        padding: 0px;
+        margin: 0px;
+        box-sizing: border-box;
+        width: 40px;
+        height: 40px;
+        text-align: center;
+        font-weight: bold;
+        border: 1px solid white;
+        float: right;
+    }
+    .quantity-block:hover{
+        background-color: black;
+        color: white;
+        box-shadow: 0px 0px 10px white
+    }
+    .add-to-cart-button{
+        background-color: black;
+        border: 1px solid white;
+        color: white;
+        font-weight: bold;
+        height: 40px;
+        float: right;
+    }
+    .add-to-cart-button:hover{
+        box-shadow: 0px 0px 10px white
+    }
+    .image-preview{
+        height: 70px;
+        width: 70px;
+        margin: 10px;
+        object-fit: cover;
+    }
+    .image-preview:hover{
+        box-shadow: 0px 0px 10px white;
+    }
+    .gallery-container{
+        flex: 0 1 500px; 
+        align-self: flex-start;
+        display: flex;
+        flex-direction: column;
+        height: 500px;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(5px);
+        border: 1px solid white;
+        margin-right: 10px;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    .image-container{
+        width: 400px; 
+        height: 400px;
+    }
+    .product-image{
+        max-height: 100%;
+        max-width: 100%;
+        height: auto;
+        width: auto;
+        position: relative;
+        left: 200px;
+        top: 200px;
+        transform: translate(-50%, -50%);
+    }
+    .gallery-spinner{
+        display: flex;
+        height: auto;
+        align-items: center;
+    }
+    .searchbar{
+        display: flex;
+        width: 100%;
+        height: 48px;
+        padding: 0px;
+        max-width: 100vw;
+        background-color: black;
+        transition: height 0.5s;
+        border-bottom: 1px solid white;
+        align-items: center;
+        box-sizing: content-box;
+        position: fixed;
+    }
+    .brand{
+        float: left; 
+        color: white; 
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: bold;
+        font-size: 24px;
+    }
+    .search-box{
+        border: 1px solid white;
+        background-color: black;
+        color: white;
+        margin: 0px;
+        box-sizing: border-box;
+        height: 50px;
+        width: 400px;
+    }
+    .search-button{
+        background-color: white;
+        font-family: Arial, Helvetica, sans-serif;
+        color: black;
+        font-weight: bold;
+        border: none;
+        margin: 0px;
+        height: 50px;
+    }
+    .cart-button{
+        background-color: white;
+        text-align: center;
+        text-decoration: none;
+        color:black;
+        font-family: Arial, Helvetica, sans-serif;
+        padding: 10px 20px;
+        margin-right: 15px;
+    }
+    canvas{
+        position: fixed;
+        z-index: -10;
+        background-color: black;
+    }
+    body{
+        margin: 0px;
+        padding: 0px;
+        width: 100%;
+        max-width: 100vw;
+    }
+</style>
+
+<body onload = "pageLoad()">
+<canvas id="myCanvas" style="background-color: black">
+        Your browser does not support the HTML canvas tag.
+</canvas>
+<div class = "searchbar">
+    <div style = "flex: 0 1 20px"></div>
+    <div class = "brand">INTERDIMENSIONAL NEWS STAND</div>
+    <div style = "flex: 0 1 50px"></div>
+    <form style = "float: 'right'" method = "GET" action="/webshop/landing">
+        <input class = 'search-box' type = "text" name = "query" placeholder="search for products"><input class = 'search-button' type = "submit" value = "GO!">
+    </form>
+    <div style = "flex: 1 0 0px"></div>
+    <a class = "cart-button" href = '/webshop/cart'>CART</a>
+</div>
+<div style = "height: 60px; width: 100%"></div>
+<div class = "mainstyle">
+    <div class = "gallery-container">
+        <div class = "image-container"><img class="product-image" id = "productimage" alt = "something went wrong..."/></div>
+        <div class = "gallery-spinner" id = "spinnercontainer"></div>
+    </div>
+    <div class = "product-text-area-style">
+        <h1 class = "product-title-style" id = "producttitle"></h1>
+        <h2 class = "product-price-style" id = "productprice"></h2>
+        <p class = "product-description-style" id = "productdescription"></p>
+        <div style = "display: inline-block; font-size: 0;">
+            <button class = "add-to-cart-button" style = "width: 130px;" onclick = addToCart()>ADD TO CART</button>
+            <button class = "quantity-block" onclick = increment()>+</button>
+            <input type="number" value="1" class = "quantity-block" id = "order-quantity">
+            <button class = "quantity-block" onclick = decrement()>-</button>
+        </div>
+    </div>
+    
+</div>
+
+<script>
+    function pageLoad(){
+        //start animation
+        start();
+        //call backend for product information
+        xhp = new XMLHttpRequest()
+        xhp.onreadystatechange = function(){
+            if(this.readyState == 4 && this.status == 200){
+                populate(JSON.parse(this.responseText))
+            }
+        }
+        xhp.open("POST", window.location, true)
+        xhp.send()
+    }
+
+    //populate template html with product information
+    function populate(p){
+        var image = document.getElementById("productimage")
+        var title = document.getElementById("producttitle")
+        var description = document.getElementById("productdescription")
+        var price = document.getElementById("productprice")
+
+        image.setAttribute("src", "https://kamstuff.ddns.net/public/images/" + p.splash)
+        title.innerHTML = p.name
+        description.innerHTML = p.description
+        price.innerHTML = parseFloat(p.price).toFixed(2) + " USD"
+        if(p.gallery){
+            var gallery = JSON.parse(p.gallery)
+            gallery.forEach(e => {
+                generateTile(e)
+            });
+        }
+    }
+    
+    function increment(){
+        var q = document.getElementById("order-quantity")
+        var val = parseInt(q.getAttribute("value")) + 1;
+        q.setAttribute("value", val) 
+    }
+
+    function decrement(){
+        var q = document.getElementById("order-quantity")
+        var val = parseInt(q.getAttribute("value")) - 1;
+        if(val < 1){
+            return;
+        }
+        q.setAttribute("value", val) 
+    }
+
+    function addToCart(){
+        var params = new URLSearchParams(window.location.search)
+        var quantity = parseInt(document.getElementById('order-quantity').getAttribute('value'))
+        var qObj = {productId: params.get("productId"), qty: quantity}
+        var xhp = new XMLHttpRequest()
+        xhp.onreadystatechange = function(){
+            if(this.readyState == 4 && this.status == 200){
+                console.log(this.responseText)
+            }
+        }
+        xhp.open("POST", "https://kamstuff.ddns.net/webshop/addtocart", true)
+        xhp.setRequestHeader('Content-type', 'application/json')
+        xhp.send(JSON.stringify(qObj))
+    }
+
+    function generateTile(e){
+        var tileParent = document.getElementById("spinnercontainer")
+        var img = document.createElement("IMG")
+        img.setAttribute("src", "https://kamstuff.ddns.net/public/images/" + e)
+        img.setAttribute("class", "image-preview")
+        img.addEventListener("mouseover", (e) => {changeImage(e)})
+        tileParent.appendChild(img)
+    }
+
+    function changeImage(e){
+        var source = e.target.getAttribute("src")
+        var mImage = document.getElementById("productimage")
+        mImage.setAttribute('src', source)
+    }
+
+
+//this part of the script powers the background animation
+    
+var angle = -0.1;
+var minSpeed = 9;
+var maxSpeed = 11;
+var xMax = 0;
+var pMax = 0;
+var ctx = {}
+var dropLength = 7;
+
+function start(){
+	var canvas = document.getElementById("myCanvas")
+	xMax = window.innerWidth
+	pMax = window.innerHeight
+	canvas.width = xMax
+	canvas.height = pMax
+	ctx = canvas.getContext("2d");
+	var raindrops = []
+	for(var j = 0; j<30; j++){
+		raindrops.push(new Raindrop())
+	}
+	for(var j = 0; j<1000; j++){
+		raindrops.forEach((drop)=>{drop.update()})
+	}
+	setInterval(() =>{update(raindrops)}, 30)
+}
+
+function update(raindrops){	//rain falling animation
+	//update the position of every drop
+	raindrops.forEach((drop) => {drop.update()}) 
+
+	//render the new drops to the canvas
+	ctx.clearRect(0, 0, xMax, pMax)
+	ctx.lineCap = "round";
+	ctx.strokeStyle = "white";
+	raindrops.forEach((drop) =>{
+		ctx.beginPath();
+		ctx.moveTo(drop.xPosition, drop.position);
+		ctx.lineTo(drop.xPosition-drop.xSpeed*dropLength, drop.position-drop.speed*dropLength*0.8)
+		ctx.stroke();
+	})
+}
+
+function Raindrop(){	//class representing each drop
+	this.speed = Math.random()*maxSpeed + minSpeed
+	this.xSpeed = this.speed*angle
+	this.position = 0
+	this.xPosition = Math.random()*xMax	
+
+	this.update = () =>{
+		this.position += this.speed
+		this.xPosition += this.xSpeed
+		
+		if(this.position > pMax + 100 || this.position > xMax + 50 || this.xPosition < -50){
+			this.speed = Math.random()*maxSpeed + minSpeed
+			this.xSpeed = this.speed*angle
+			this.position = 0
+			this.xPosition = Math.random()*xMax
+		}
+	}
+}
+
+
+
+</script>
+
+</body>
+</html>

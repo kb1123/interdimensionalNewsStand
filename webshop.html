@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<style>
+    .searchbar{
+        display: flex;
+        width: 100%;
+        height: 48px;
+        padding: 0px;
+        max-width: 100vw;
+        background-color: black;
+        transition: height 0.5s;
+        border-bottom: 1px solid white;
+        align-items: center;
+        box-sizing: content-box;
+        position: fixed;
+    }
+
+    .brand{
+        float: left; 
+        color: white; 
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: bold;
+        font-size: 24px;
+    }
+
+    .search-box{
+        border: 1px solid white;
+        background-color: black;
+        color: white;
+        margin: 0px;
+        box-sizing: border-box;
+        height: 50px;
+        width: 400px;
+    }
+
+    .search-button{
+        background-color: white;
+        font-family: Arial, Helvetica, sans-serif;
+        color: black;
+        font-weight: bold;
+        border: none;
+        margin: 0px;
+        height: 50px;
+    }
+
+    .cart-button{
+        background-color: white;
+        text-align: center;
+        text-decoration: none;
+        color:black;
+        font-family: Arial, Helvetica, sans-serif;
+        padding: 10px 20px;
+        margin-right: 15px;
+    }
+
+    .tilecontainer{
+        border-bottom: gray solid 3px;
+        height: 270px;
+        width: 220px;
+        background-color: black;
+        border: 1px solid white;
+    }
+
+    .tilecontainer:hover{
+        box-shadow: 0px 0px 8px white;
+    }
+
+    .productgrid{
+        display: grid;
+        grid-template-columns: auto auto auto auto;
+        gap: 30px;
+        margin-top: 60px;
+    }
+
+    .productimage{
+        height: 180px;
+        width: 220px;
+        margin-right: auto;
+        margin-left: auto;
+        object-fit: cover;
+        display: block;
+    }
+
+    .descriptionbox{
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        color: grey;
+        width: 100%;
+        height: auto;
+        max-height: 75px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;  
+        text-align: center;
+        padding-top: 10px;
+    }
+
+    .pricebox{
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        color: gray;
+        width: 100%;
+        height: auto;
+        max-height: 75px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;  
+        text-align: center;
+        padding-top: 10px;
+    }
+
+    h1{
+        font-family: Helvetica, sans-serif;
+        color: white;
+    }
+
+    canvas{
+        background-color: black;
+        position: absolute;
+        z-index: inherit;
+        padding: 0px;
+        margin: 0px;
+        box-sizing: border-box;
+        background-size: cover;
+    }
+
+    .canvas-wrapper{
+        position: fixed;
+        position: -webkit-sticky;
+        z-index: -1;
+        width: auto;
+        height: auto;
+        padding: 0px;
+        margin: 0px;
+        box-sizing: border-box;
+        background-size: cover;
+    }
+
+    body{
+        padding: 0px;
+        margin: 0px;
+    }
+
+</style>
+
+<body onload = "grabTiles()">
+<div class = 'canvas-wrapper'>
+    <canvas id = "dot-canvas" onresize="canvasResize()"></canvas>
+</div>
+<div class = "searchbar">
+    <div style = "flex: 0 1 20px"></div>
+    <div class = "brand">INTERDIMENSIONAL NEWS STAND</div>
+    <div style = "flex: 0 1 50px"></div>
+    <form style = "float: 'right'; box-sizing: border-box; padding: 0px; margin: 0px" method = "GET" action="/webshop/landing">
+        <input class = 'search-box' type = "text" name = "query" placeholder="search for products"><input class = 'search-button' type = "submit" value = "GO!">
+    </form>
+    <div style = "flex: 1 0 0px"></div>
+    <a class = "cart-button" href = '/webshop/cart'>CART</a>
+</div>
+<div style = "display: flex; align-items: center; flex-direction: column;">
+    <div class = "productgrid" id = "productGrid">
+    </div>
+</div>
+
+<script src = "/scripts/page_scripts/webshop.js"></script>
+
+</body>
+</html>

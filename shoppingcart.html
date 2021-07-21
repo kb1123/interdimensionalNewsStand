@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+
+<style>
+body{
+    display: flex;
+    margin: 0px;
+    padding: 0px;
+    flex-direction: column;
+    align-items: center;
+}
+.searchbar{
+    display: flex;
+    width: 100%;
+    height: 48px;
+    padding: 0px;
+    max-width: 100vw;
+    background-color: black;
+    border-bottom: 1px solid white;
+    align-items: center;
+    box-sizing: content-box;
+    position: fixed;
+    z-index: 20;
+}
+.brand{
+    float: left; 
+    color: white; 
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: 24px;
+}
+.search-box{
+    border: 1px solid white;
+    background-color: black;
+    color: white;
+    margin: 0px;
+    box-sizing: border-box;
+    height: 50px;
+    width: 400px;
+}
+.search-button{
+    background-color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    color: black;
+    font-weight: bold;
+    border: none;
+    margin: 0px;
+    height: 50px;
+}
+.cart-button{
+    background-color: white;
+    text-align: center;
+    text-decoration: none;
+    color:black;
+    font-family: Arial, Helvetica, sans-serif;
+    padding: 10px 20px;
+    margin-right: 15px;
+}
+.outer-container{
+    width: 80vw;
+    display: block;
+    z-index: 10;
+    margin: 20px 0px;
+}
+.cart-header{
+    display: inline-block;
+    background-color: black;
+    width: 100%;
+    height: auto;
+    color: white;
+    font-size: 30px;
+    font-weight: bold;
+    font-family: Arial, Helvetica, sans-serif;
+    border: 1px solid white;
+    box-sizing: border-box;
+}
+.list-container{
+    display: block;
+}
+.item-container{
+    display: flex;
+    border-top: 1px solid white;
+    border-bottom: 1px solid white;
+    background-color: rgba(255,255,255,0.05);
+    align-content: center;
+    backdrop-filter: blur(2px);
+}
+.image-wrapper{
+    height: 150px;
+    width: 150px;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+}
+.item-image{
+    width:100%;
+    height:100%;
+    object-fit: cover;
+    overflow: hidden;
+}
+.item-name{
+    color: white;
+    display: flex;
+    align-items: center;
+    margin-left: 20px;
+    font-weight: bold;
+    font-size: large;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+.item-price{
+    color: white;
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+    font-weight: bold;
+    font-size: large;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+.item-container:hover{
+    background-color: rgba(255,255,255,0.1);
+}
+.cart-footer{
+    display: flex;
+    background-color: black;
+    width: 100%;
+    border:1px solid white;
+    padding: 5px;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: flex-end;
+}
+.total-price{
+    color: white;
+    background-color: black;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: 20px;
+    margin-right: 10px;
+}
+.qty-input{
+    background-color: white;
+    text-align: center;
+    height: 20px;
+    width: 40px;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-right: 10px;
+}
+canvas{
+    background-color: black;
+    position: fixed;
+    z-index: -10;
+    right: 0px;
+    top: 0px;
+}
+.update-cart-button{
+    background-color:black;
+    border: 1px solid white;
+    font-family: Arial, Helvetica, sans-serif;
+    color: white;
+    font-weight: bold;
+    float: right;
+    font-size: 20px;
+}
+.update-cart-button:hover{
+    background-color: white;
+    color: black;
+}
+a{
+    text-decoration: none;
+}
+</style>
+
+<body onload = "start()">
+<canvas id = "myCanvas" onresize="canvasResize()"></canvas>
+<div class = "searchbar">
+    <div style = "flex: 0 1 20px"></div>
+    <div class = "brand">INTERDIMENSIONAL NEWS STAND</div>
+    <div style = "flex: 0 1 50px"></div>
+    <form style = "float: 'right'" method = "GET" action="/webshop/landing">
+        <input class = 'search-box' type = "text" name = "query" placeholder="search for products"><input class = 'search-button' type = "submit" value = "GO!">
+    </form>
+    <div style = "flex: 1 0 0px"></div>
+    <a class = "cart-button" href = '/webshop/cart'>CART</a>
+</div>
+<div style = "height: 50px; width: 100%"></div>
+<div class = "outer-container">
+    <div class= "cart-header">SHOPPING CART</div>
+    <div class = "list-container" id = "listcontainer"></div>
+    <div class = "cart-footer">
+        <div class = "total-price" id = "total-box"></div>
+        <button onclick = "updateCart()" class = "update-cart-button">update cart</button>
+    </div>
+</div>
+
+<script>
+var total = 0;
+function start(){
+    //start the animation
+    startCanvas();
+    //get the cart contents from database and append them to the body
+    var xhp = new XMLHttpRequest()
+    xhp.addEventListener("readystatechange", function(){
+        if(this.readyState == 4 && this.status == 200){
+            if(this.responseText == "DNE"){
+                console.log("cart is empty")
+            }else{
+                var cartItems = JSON.parse(this.responseText)
+                cartItems.forEach((item)=>{
+                    getItemInfo(item)
+                })
+            }
+        }
+    })
+    xhp.open("POST", window.location, true)
+    xhp.setRequestHeader("Content-type", "application/json")
+    xhp.send(JSON.stringify({}))
+
+}
+
+ //helper function to make list items
+ function createCartItem(item){
+    var listContainer = document.getElementById("listcontainer")
+
+    var productLink = document.createElement("A")
+    productLink.setAttribute("href", "https://kamstuff.ddns.net/webshop/product?productId=" + item._id)
+
+    var listItem = document.createElement("DIV")
+    listItem.setAttribute("class", "item-container")
+    listItem.setAttribute("product-id",item._id)
+
+    var itemName = document.createElement("DIV")
+    itemName.setAttribute('class', 'item-name')
+    itemName.innerHTML = item.name
+
+    var imageWrapper = document.createElement("DIV")
+    imageWrapper.setAttribute("class", "image-wrapper")
+
+    var imageTile = document.createElement("IMG")
+    imageTile.setAttribute('src', 'https://kamstuff.ddns.net/public/images/' + item.splash)
+    imageTile.setAttribute('class', 'item-image')
+    imageWrapper.appendChild(imageTile)
+
+    var priceTag = document.createElement("DIV")
+    priceTag.setAttribute('class', 'item-price')
+    priceTag.innerHTML = '$' + (item.price*item.qty).toFixed(2)
+
+    var qtyBox = document.createElement("INPUT") 
+    qtyBox.setAttribute('value', item.qty)
+    qtyBox.setAttribute('class', 'qty-input')
+    qtyBox.setAttribute('type', 'number')
+    qtyBox.setAttribute('onclick', "event.preventDefault(); event.stopPropagation()")
+
+    var spacerDiv = document.createElement("DIV")
+    spacerDiv.setAttribute("style", "flex: 1 0 0px")
+
+    productLink.appendChild(listItem)
+    listItem.appendChild(imageWrapper)
+    listItem.appendChild(itemName)
+    listItem.appendChild(spacerDiv)
+    listItem.appendChild(priceTag)
+    listItem.appendChild(qtyBox)
+
+    listContainer.appendChild(productLink)
+}
+
+function getItemInfo(cartItem){
+    var xhp = new XMLHttpRequest()
+    xhp.addEventListener("readystatechange", function(){
+        if(this.readyState == 4 && this.status == 200){
+            var item = JSON.parse(this.responseText)
+            item.qty = cartItem.qty
+            total += item.qty*item.price
+            updateTotal();
+            createCartItem(item)
+        }
+    })
+    xhp.open("POST", "https://kamstuff.ddns.net/database/products", true)
+    xhp.setRequestHeader("Content-type", "application/json")
+    xhp.send(JSON.stringify(cartItem)) 
+}
+
+function updateCart(){
+    var items = document.getElementsByClassName("item-container")
+    items = Array.from(items);
+    var cartModel = []
+    items.forEach((item)=>{
+        var cartModelItem = {}
+        cartModelItem.productId = item.getAttribute('product-id')
+        cartModelItem.qty = parseInt(Array.from(item.getElementsByClassName("qty-input"))[0].value)
+        cartModel.push(cartModelItem)
+    })
+
+    var xhp = new XMLHttpRequest
+    xhp.addEventListener("readystatechange", function(){
+        if(this.readyState == 4 && this.status == 200){
+           location.reload();
+           console.log("reload")
+        }
+    })
+    xhp.open("POST", window.location, true)
+    xhp.setRequestHeader("Content-type", "application/json")
+    xhp.send(JSON.stringify(cartModel))
+}
+
+function updateTotal(){
+    var totalBox = document.getElementById("total-box")
+    totalBox.innerHTML = "total: " + total.toFixed(2) + "USD" 
+}
+
+
+
+//this part of the script renders the "exchange" animation in the background
+
+var ctx = {}
+var height, width = 0;
+var MAX_SPEED = 0.5;
+var MIN_SPEED = 1;
+
+function startCanvas(){
+	height = window.innerHeight
+	width = window.innerWidth
+	
+	var c = document.getElementById("myCanvas");
+	c.setAttribute('width', width)
+	c.setAttribute('height', height)
+	ctx = c.getContext("2d");
+	var boxes = []
+	for(var j=0; j<40; j++){
+		boxes.push(new Box())
+    }
+    for(var j=0; j<2000; j++){
+        boxes.forEach((box)=>{
+            box.update();
+        })
+    }
+	setInterval(() => {loop(boxes)}, 40)
+}
+
+function loop(boxes){
+	
+	var img = ctx.getImageData(0,0,width,height)
+	for(var i=0; i<img.data.length; i++){
+		img.data[i] = img.data[i]*0.9
+	}
+	ctx.clearRect(0,0,width,height)
+	ctx.putImageData(img, 0, 0)
+	boxes.forEach((box) => {
+		box.update()
+		ctx.strokeStyle = "white"
+		ctx.lineWidth = 1;
+		ctx.beginPath()
+		ctx.rect(box.x, box.y, 10, 10)
+		ctx.stroke()
+	})
+
+}
+
+function Box(){
+	this.x = width/2+(width/2 + 50)*plusMinus()
+	this.y = Math.random()*height
+	this.dx = plusMinus()*(Math.random()*MAX_SPEED + MIN_SPEED)
+	this.cnt = 0
+
+	this.update = () =>{
+		this.x += this.dx
+		this.cnt++
+		if(this.cnt>10){
+			this.cnt = 0;
+		}
+		if(this.x > width + 70 || this.x < -70){
+			this.x = width/2+(width/2 + 50)*plusMinus()
+			this.y = Math.random()*height
+			this.dx = plusMinus()*(Math.random()*MAX_SPEED + MIN_SPEED)
+		}
+	}
+}
+
+function plusMinus(){
+	var v = Math.random()-0.5
+	if(v>0){
+		return 1;
+	}
+	return -1;
+}
+
+function canvasResize(){
+    height = window.innerHeight
+	width = window.innerWidth
+	
+	var c = document.getElementById("myCanvas");
+	c.setAttribute('width', width)
+	c.setAttribute('height', height)
+}
+
+</script>
+
+</body>
+</html>
